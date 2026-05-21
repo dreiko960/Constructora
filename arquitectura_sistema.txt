@@ -1,0 +1,55 @@
+# ARQUITECTURA DEL SISTEMA - GESTIÓN DE OBRAS
+
+## 1. DESCRIPCIÓN GENERAL
+El sistema está diseñado bajo una arquitectura de referencia Cliente-Servidor desacoplada, utilizando tecnologías modernas para garantizar escalabilidad, seguridad y una experiencia de usuario fluida.
+
+---
+
+## 2. ESTRUCTURA DEL BACKEND (API REST)
+El backend actúa como el núcleo de procesamiento y gestión de datos.
+
+- **Tecnología Principal:** Python 3.x con el framework **FastAPI**.
+- **Base de Datos:** MySQL (gestionada a través de SQLAlchemy ORM).
+- **Autenticación:** Seguridad basada en tokens JWT (JSON Web Tokens) con hashing de contraseñas (OAuth2).
+
+### Organización de Archivos:
+- `app/main.py`: Punto de entrada de la aplicación. Configura las rutas (endpoints), middleware CORS y manejo de archivos.
+- `app/models/models.py`: Definición de las tablas de la base de datos como clases de Python (ORM).
+- `app/schemas/schemas.py`: Modelos de validación Pydantic para la entrada y salida de datos de la API.
+- `app/db/session.py`: Configuración de la conexión y gestión de sesiones con la base de datos.
+- `app/core/auth.py`: Lógica de seguridad, generación y verificación de tokens.
+
+---
+
+## 3. ESTRUCTURA DEL FRONTEND (CLIENTE WEB)
+Una aplicación de una sola página (SPA) moderna y reactiva.
+
+- **Tecnología Principal:** React 19 con **TypeScript**.
+- **Herramienta de Construcción:** Vite (para un desarrollo ultra rápido).
+- **Estilos:** Tailwind CSS (diseño responsivo y moderno).
+- **Gestión de Rutas:** React Router DOM para la navegación entre páginas.
+- **Comunicación API:** Axios para peticiones HTTP al backend.
+
+### Organización de Archivos:
+- `src/main.tsx`: Punto de entrada del cliente.
+- `src/routes.tsx`: Definición de todas las rutas de la aplicación (Dashboard, Proyectos, Usuarios, etc.).
+- `src/app/pages/`: Contiene los componentes de página (vistas principales).
+- `src/app/components/`: Componentes reutilizables (Layouts, botones, tablas).
+- `src/lib/api.ts`: Configuración centralizada de Axios para llamadas a la API.
+
+---
+
+## 4. FLUJO DE DATOS
+1. El **Usuario** interactúa con la interfaz en React.
+2. El **Frontend** realiza una petición asíncrona (vía Axios) al Backend.
+3. El **Backend (FastAPI)** recibe la petición, valida el token JWT y procesa la lógica.
+4. El **ORM (SQLAlchemy)** consulta o modifica la base de datos **MySQL**.
+5. El **Backend** responde con datos en formato JSON.
+6. El **Frontend** actualiza la interfaz de usuario automáticamente.
+
+---
+
+## 5. REQUERIMIENTOS PARA EJECUCIÓN
+- **Backend:** Python instalado + `pip install -r requirements.txt`.
+- **Frontend:** Node.js instalado + `npm install` y `npm run dev`.
+- **Base de Datos:** Servidor MySQL activo con las tablas creadas.

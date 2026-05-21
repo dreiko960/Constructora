@@ -1,0 +1,16 @@
+@import "tailwindcss";
+
+:root {
+  --sidebar-bg: #081f32;
+  --sidebar-bg-active: #0f172a;
+  --background: #f8f9fa;
+  --accent: #b8860b;
+  --success: #2d5d2c;
+  --text-primary: #1f2937;
+  --text-secondary: #6b7280;
+}
+
+body {
+  background-color: var(--background);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}

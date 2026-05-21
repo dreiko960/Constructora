@@ -1,0 +1,104 @@
+================================================================================
+MODELO ENTIDAD-RELACIÓN (ER) - SISTEMA DE GESTIÓN DE OBRAS
+================================================================================
+
+Este documento detalla la estructura de tablas, sus campos y las relaciones que 
+gobiernan la integridad de los datos en la base de datos `constructora_bd`.
+
+--------------------------------------------------------------------------------
+1. DESCRIPCIÓN DE TABLAS Y ATRIBUTOS
+--------------------------------------------------------------------------------
+
+A. TABLA: ROLES (ROLES)
+   - id (PK, Int): Identificador único del rol.
+   - nombre (Varchar 50): Nombre del rol (ej. Administrador, Ingeniero).
+   - permisos (JSON): Definición técnica de accesos permitidos.
+   - descripcion (Text): Detalle de las responsabilidades del rol.
+
+B. TABLA: USUARIOS (USUARIOS)
+   - id (PK, Int): Identificador único del usuario.
+   - nombre (Varchar 100): Nombre completo.
+   - email (Unique, Varchar 100): Correo electrónico (usado para login).
+   - password (Varchar 255): Contraseña encriptada (bcrypt).
+   - rol_id (FK -> ROLES.id): Rol asignado al usuario.
+   - estado (Enum): 'Activo' o 'Inactivo'.
+
+C. TABLA: PROYECTOS (PROYECTOS)
+   - id (PK, Int): Identificador único del proyecto.
+   - nombre (Varchar 150): Nombre de la obra.
+   - cliente (Varchar 100): Empresa o persona que contrata.
+   - presupuesto (Int): Monto asignado.
+   - avance_total (Int): Porcentaje (0-100) calculado del progreso.
+   - responsable_id (FK -> USUARIOS.id): Usuario líder del proyecto.
+
+D. TABLA: ACTIVIDADES (ACTIVIDADES)
+   - id (PK, Int): Identificador único de la tarea.
+   - proyecto_id (FK -> PROYECTOS.id): Proyecto al que pertenece.
+   - nombre (Varchar 150): Nombre de la tarea (ej. Cimentación).
+   - avance_plan (Int): Progreso esperado según cronograma.
+   - avance_real (Int): Progreso reportado en campo.
+   - estado (Enum): 'No iniciada', 'En proceso', 'Completada', 'Retrasada'.
+
+E. TABLA: PLANOS (PLANOS)
+   - id (PK, Int): Identificador único del plano.
+   - proyecto_id (FK -> PROYECTOS.id): Proyecto asociado.
+   - nombre (Varchar 100): Título del plano técnico.
+   - estado (Enum): 'Aprobado', 'Pendiente', 'Rechazado'.
+   - archivo_url (Varchar 255): Ruta física del archivo más reciente.
+
+F. TABLA: VERSIONES_PLANO (VERSIONES_PLANO)
+   - id (PK, Int): Identificador único de la versión.
+   - plano_id (FK -> PLANOS.id): Plano al que pertenece esta versión.
+   - version (Varchar 10): Código de versión (ej. v1.1, v2.0).
+   - modificado_por (FK -> USUARIOS.id): Usuario que subió el cambio.
+
+G. TABLA: EVIDENCIAS (EVIDENCIAS)
+   - id (PK, Int): Identificador único del registro visual.
+   - actividad_id (FK -> ACTIVIDADES.id): Tarea específica que respalda.
+   - archivo_url (Varchar 255): URL de la imagen o documento.
+   - subido_por (FK -> USUARIOS.id): Quién capturó la evidencia.
+
+--------------------------------------------------------------------------------
+2. RELACIONES ENTRE ENTIDADES (LÓGICA DEL NEGOCIO)
+--------------------------------------------------------------------------------
+
+1. USUARIOS <-> ROLES (N:1):
+   Muchos usuarios comparten un mismo rol. El rol define qué botones y módulos 
+   puede ver el usuario en la interfaz.
+
+2. PROYECTOS <-> ACTIVIDADES (1:N):
+   Un proyecto se descompone en múltiples actividades. Si una actividad se 
+   retrasa, afecta el porcentaje de `avance_total` del proyecto.
+
+3. PROYECTOS <-> PLANOS (1:N):
+   Un proyecto técnico requiere múltiples planos (Arquitectura, Eléctricos, etc.).
+
+4. PLANOS <-> VERSIONES_PLANO (1:N):
+   Relación crítica para la trazabilidad. Un plano evoluciona en el tiempo. El 
+   sistema siempre prioriza mostrar la versión con el `id` más alto o estado 
+   'Aprobado'.
+
+5. ACTIVIDADES <-> EVIDENCIAS (1:N):
+   Una tarea en campo puede tener múltiples fotos como respaldo de su avance real.
+
+6. USUARIOS <-> PROYECTOS (N:M vía USUARIOS_PROYECTOS):
+   Varios usuarios trabajan en un proyecto, y un usuario puede estar asignado 
+   a varias obras simultáneamente.
+
+--------------------------------------------------------------------------------
+3. DIAGRAMA SIMPLIFICADO (REPRESENTACIÓN TEXTUAL)
+--------------------------------------------------------------------------------
+
+[ ROLES ] --< [ USUARIOS ]
+                   |
+                   |---< [ USUARIOS_PROYECTOS ] >--- [ PROYECTOS ]
+                                                       |
+                                        |--------------|--------------|
+                                        |              |              |
+                                 [ ACTIVIDADES ]    [ PLANOS ]   [ DOCUMENTOS ]
+                                        |              |
+                                 [ EVIDENCIAS ]  [ VERSIONES_PLANO ]
+
+================================================================================
+FIN DEL DOCUMENTO
+================================================================================

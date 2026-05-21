@@ -1,0 +1,76 @@
+================================================================================
+NORMALIZACIÓN DE LA BASE DE DATOS - SISTEMA DE GESTIÓN DE OBRAS
+================================================================================
+
+Este documento describe cómo el diseño de la base de datos `constructora_db` cumple 
+con las 5 Formas Normales (5FN) para garantizar la integridad de los datos y 
+eliminar redundancias.
+
+--------------------------------------------------------------------------------
+1. PRIMERA FORMA NORMAL (1FN): Atomicidad y Valores Únicos
+--------------------------------------------------------------------------------
+REQUISITO: Cada columna debe contener valores atómicos (indivisibles) y no debe 
+haber grupos repetitivos.
+APLICACIÓN:
+- En la tabla `USUARIOS`, campos como `nombre` y `email` contienen un solo dato.
+- No se usan listas separadas por comas para almacenar múltiples teléfonos; 
+  si se requirieran varios, se crearía una tabla relacionada.
+- Cada registro es único mediante una llave primaria (`id`).
+
+--------------------------------------------------------------------------------
+2. SEGUNDA FORMA NORMAL (2FN): Dependencia Funcional Completa
+--------------------------------------------------------------------------------
+REQUISITO: Cumplir 1FN y que todos los atributos no llave dependan de TODA la 
+llave primaria.
+APLICACIÓN:
+- En la tabla intermedia `USUARIOS_PROYECTOS`, la llave es compuesta 
+  (`usuario_id`, `proyecto_id`). 
+- El campo `rol_proyecto` depende de ambos (qué rol tiene ESE usuario en ESE 
+  proyecto específico), cumpliendo la dependencia completa.
+- Atributos como `nombre_proyecto` no están en esta tabla, sino en `PROYECTOS`, 
+  evitando dependencias parciales.
+
+--------------------------------------------------------------------------------
+3. TERCERA FORMA NORMAL (3FN): Dependencia No Transitiva
+--------------------------------------------------------------------------------
+REQUISITO: Cumplir 2FN y que los atributos no llave dependan solo de la llave 
+primaria y no de otros atributos no llave.
+APLICACIÓN:
+- En `USUARIOS`, no guardamos el nombre del rol (ej. 'Administrador'). Guardamos 
+  `rol_id`. 
+- Si guardáramos `nombre_rol` en `USUARIOS`, dependería de `rol_id`, y este 
+  dependería de `id` (dependencia transitiva). Al separar `ROLES` en su propia 
+  tabla, cumplimos 3FN.
+
+--------------------------------------------------------------------------------
+4. CUARTA FORMA NORMAL (4FN): Dependencias Multivaluadas
+--------------------------------------------------------------------------------
+REQUISITO: Cumplir 3FN y eliminar dependencias multivaluadas independientes.
+APLICACIÓN:
+- Un proyecto tiene muchos ingenieros y también muchos planos. 
+- No mezclamos ingenieros y planos en una sola tabla de "DetallesProyecto".
+- Tenemos `USUARIOS_PROYECTOS` para el personal y `PLANOS` para los archivos. 
+  Estas son dos relaciones independientes del proyecto que se manejan por separado.
+
+--------------------------------------------------------------------------------
+5. QUINTA FORMA NORMAL (5FN): Dependencia de Unión (Join Dependency)
+--------------------------------------------------------------------------------
+REQUISITO: Cumplir 4FN y que la información no pueda ser reconstruida a partir 
+de tablas más pequeñas sin pérdida de datos.
+APLICACIÓN:
+- El sistema utiliza tablas de unión precisas como `VERSIONES_PLANO`.
+- Una versión específica pertenece a un plano específico, y fue modificada por 
+  un usuario específico.
+- No podemos descomponer `VERSIONES_PLANO` más allá sin perder la relación crítica 
+  entre el archivo físico, el número de versión y el autor del cambio.
+
+================================================================================
+RESUMEN DE TABLAS PRINCIPALES
+================================================================================
+- ROLES / USUARIOS (1:N)
+- PROYECTOS / ACTIVIDADES (1:N)
+- PROYECTOS / PLANOS (1:N)
+- PLANOS / VERSIONES_PLANO (1:N)
+- ACTIVIDADES / EVIDENCIAS (1:N)
+- USUARIOS / PROYECTOS (N:M vía USUARIOS_PROYECTOS)
+================================================================================
