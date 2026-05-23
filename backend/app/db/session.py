@@ -16,7 +16,7 @@ engine = create_engine(
 try:
     # Test connection on startup
     with engine.connect() as connection:
-        print("Conexión a la base de datos 'grupo_ipurre_eirl' exitosa.")
+        print("Conexión a la base de datos 'constructora_bd' exitosa.")
 except Exception as e:
     print(f"Error al conectar con la base de datos: {e}")
     print("Verifique que el servidor MySQL esté corriendo y que las credenciales en .env sean correctas.")

@@ -18,12 +18,16 @@ def check_db_and_create_tables():
         
         if result:
             print(f"Base de datos '{db_name}' encontrada.")
-            # Create tables using SQLAlchemy
-            print("Creando tablas...")
-            models.Base.metadata.create_all(bind=engine)
-            print("Tablas creadas exitosamente.")
         else:
-            print(f"Error: La base de datos '{db_name}' no existe. Por favor, créala manualmente.")
+            print(f"Base de datos '{db_name}' no encontrada. Creándola...")
+            cursor.execute(f"CREATE DATABASE {db_name}")
+            conn.commit()
+            print(f"Base de datos '{db_name}' creada exitosamente.")
+            
+        # Create tables using SQLAlchemy
+        print("Creando tablas...")
+        models.Base.metadata.create_all(bind=engine)
+        print("Tablas creadas exitosamente.")
         
         conn.close()
     except mysql.connector.Error as err:
